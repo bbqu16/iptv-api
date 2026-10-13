@@ -1,7 +1,7 @@
 name: Generate playlist
 
 # 本文件基于官方 main.yml 修改：
-# 1. 增加每天北京时间凌晨 2 点左右的定时触发（cron 使用 UTC 时间，18:18 UTC ≈ 北京时间次日 02:18）。
+# 1. 增加每天北京时间凌晨 6 点左右的定时触发（cron 使用 UTC 时间，18:22 UTC ≈ 北京时间次日 06:18）。
 # 2. 在 publish-release 任务中新增步骤：把 result.txt / result.m3u 发布到独立单提交的 gh-pages 分支（不基于主分支、无历史堆积），
 #    用于 jsDelivr CDN 加速，并在发布后自动刷新 jsDelivr 缓存。主分支代码与 Pages/Release 发布方式保持官方原样不变。
 # GitHub 说明：定时任务在仓库 60 天无任何提交后会被自动停用，届时到 Actions 页面手动 Enable workflow 即可。
