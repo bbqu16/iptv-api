@@ -5,3 +5,5 @@ http://122.224.58.42:85/tsfile/live
 http://125.94.244.29
 http://47.242.63.189
 http://www.kaniptv.cn
+http://101.35.240.114
+https://live.264788.xyz
