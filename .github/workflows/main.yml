@@ -1,8 +1,11 @@
 name: Generate playlist
 
-# 本文件基于官方 main.yml 修改：增加了每天北京时间凌晨 2 点左右的定时触发（cron 使用 UTC 时间，18:18 UTC ≈ 北京时间次日 02:18）。
-# 结果仅通过 Pages 和每次运行独立的 Release 发布，不提交回 Git，符合原项目的设计要求。
+# 本文件基于官方 main.yml 修改：
+# 1. 增加每天北京时间凌晨 2 点左右的定时触发（cron 使用 UTC 时间，18:18 UTC ≈ 北京时间次日 02:18）。
+# 2. 在 publish-release 任务中新增步骤：把 result.txt / result.m3u 发布到独立单提交的 gh-pages 分支（不基于主分支、无历史堆积），
+#    用于 jsDelivr CDN 加速，并在发布后自动刷新 jsDelivr 缓存。主分支代码与 Pages/Release 发布方式保持官方原样不变。
 # GitHub 说明：定时任务在仓库 60 天无任何提交后会被自动停用，届时到 Actions 页面手动 Enable workflow 即可。
+# jsDelivr 订阅地址：https://cdn.jsdelivr.net/gh/<用户名>/iptv-api@gh-pages/result.txt
 
 on:
   workflow_dispatch:
@@ -199,7 +202,7 @@ jobs:
               echo "- Release unmatched channels: $RELEASE_BASE/unmatch.log"
             fi
             echo
-            echo "Generated from \`${{ steps.assets.outputs.final_file }}\` without creating a Git commit."
+            echo "Generated from \`${{ steps.assets.outputs.final_file }}\`. 主分支保持无提交，结果文件同时发布至 gh-pages 分支用于 jsDelivr CDN。"
           } >> "$GITHUB_STEP_SUMMARY"
 
   deploy-pages:
@@ -267,3 +270,46 @@ jobs:
             --json assets \
             --jq '.assets[].name' | sort > /tmp/remote-assets.txt
           diff -u /tmp/local-assets.txt /tmp/remote-assets.txt
+
+      - name: Publish results to gh-pages branch for jsDelivr CDN
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP"
+          rm -rf cdn-repo
+          git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" cdn-repo
+          cd cdn-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # 每次都创建全新的孤儿分支（单次提交，无历史累积，仓库体积不会增长）
+          git checkout --orphan gh-pages
+          git rm -rf --quiet . || true
+          cp "$GITHUB_WORKSPACE/release-assets/result.txt" ./result.txt
+          if [[ -f "$GITHUB_WORKSPACE/release-assets/result.m3u" ]]; then
+            cp "$GITHUB_WORKSPACE/release-assets/result.m3u" ./result.m3u
+          fi
+          git add result.txt
+          [[ -f result.m3u ]] && git add result.m3u
+          git commit -m "Publish playlist for jsDelivr CDN [skip ci]"
+          git push --force origin gh-pages
+
+      - name: Purge jsDelivr cache
+        run: |
+          set -euo pipefail
+          for f in result.txt result.m3u; do
+            echo "Purging: $f"
+            curl -fsS --retry 3 --retry-delay 5 "https://purge.jsdelivr.net/gh/${GITHUB_REPOSITORY}@gh-pages/${f}" \
+              && echo " -> purged" || echo " -> purge skipped (file may not exist yet, cache will expire in 12h)"
+          done
+
+      - name: Add CDN links to summary
+        run: |
+          {
+            echo "### jsDelivr CDN links"
+            echo
+            echo "- CDN TXT: https://cdn.jsdelivr.net/gh/${GITHUB_REPOSITORY}@gh-pages/result.txt"
+            if [[ -f release-assets/result.m3u ]]; then
+              echo "- CDN M3U: https://cdn.jsdelivr.net/gh/${GITHUB_REPOSITORY}@gh-pages/result.m3u"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
