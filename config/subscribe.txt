@@ -69,6 +69,9 @@ https://gitee.com/ymxuit109/TV000/raw/master/TV.txt
 https://gitee.com/blbj778/blb778iptv/raw/master/live.txt
 https://gitee.com/king12985/tv/raw/master/lives/20180818.txt
 https://ds65.tv1288.xyz
+https://cdn.jsdelivr.net/gh/best-fan/iptv-sources@main/cn_pay.m3u8
+https://cdn.jsdelivr.net/gh/best-fan/iptv-sources@main/cn_all.m3u8
+
 
 
 
