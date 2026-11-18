@@ -79,4 +79,5 @@ https://cdn.jsdelivr.net/gh/best-fan/iptv-sources@main/cn_all.m3u8
 # 以下是订阅源的白名单，白名单内的订阅源获取的接口将不会参与测速，始终保留至结果最前。
 # This is the whitelist for subscription sources. Subscription sources in the whitelist will not participate in speed testing and will always be retained at the front of the results.
 https://cdn.jsdelivr.net/gh/sumingyd/Telecom-Shandong-IPTV-List@main/Telecom-Shandong.m3u
-https://cdn.jsdelivr.net/gh/CCSH/IPTV@refs/heads/main/live_platforms.m3u
+https://raw.githubusercontent.com/CCSH/IPTV/main/live_platforms.m3u
+https://raw.githubusercontent.com/CCSH/IPTV/refs/heads/main/others.txt
