@@ -313,3 +313,4 @@ jobs:
               echo "- CDN M3U: https://cdn.jsdelivr.net/gh/${GITHUB_REPOSITORY}@gh-pages/result.m3u"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
+# re-register schedule 2026-11-23
